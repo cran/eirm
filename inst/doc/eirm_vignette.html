@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Using eirm for estimating explanatory IRT models</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using eirm for estimating explanatory IRT models</h1>
+
+
+
+<div id="example-1-rasch-model" class="section level3">
+<h3>Example 1: Rasch model</h3>
+<p>The Rasch model (i.e., a fully descriptive model) can be estimated using <code>eirm</code>. The following example shows how to estimate Rasch item parameters for the verbal aggression data set (see <code>?VerbAgg</code> for further details). A preview of the <code>VerbAgg</code> data set is shown below:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">data</span>(<span class="st">&quot;VerbAgg&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">head</span>(VerbAgg)</span></code></pre></div>
+<pre><code>##   Anger Gender        item    resp id btype  situ mode r2
+## 1    20      M S1WantCurse      no  1 curse other want  N
+## 2    11      M S1WantCurse      no  2 curse other want  N
+## 3    17      F S1WantCurse perhaps  3 curse other want  Y
+## 4    21      F S1WantCurse perhaps  4 curse other want  Y
+## 5    17      F S1WantCurse perhaps  5 curse other want  Y
+## 6    21      F S1WantCurse     yes  6 curse other want  Y</code></pre>
+<p>To estimate the Rasch model, a regression-like formula must be defined: <code>formula = &quot;r2 ~ -1 + item + (1|id)&quot;</code>. In the formula,</p>
+<ul>
+<li><code>r2</code> is the variable for dichotomous item responses</li>
+<li><code>-1</code> removes the intercept from the model and yields parameter estimates for all items in the data set. With <code>1</code> (instead of <code>-1</code>), an intercept representing the parameter of the first item and relative parameters for the remaining items (i.e., distance from the parameter of the first item) would be estimated.</li>
+<li><code>item</code>is the variable representing item IDs in the data set</li>
+<li><code>(1|id)</code> refers to the random effects for persons represented by the <code>id</code> column in the data set.</li>
+</ul>
+<p>The output for the Rasch model is shown below:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod1 &lt;-<span class="st"> </span><span class="kw">eirm</span>(<span class="dt">formula =</span> <span class="st">&quot;r2 ~ -1 + item + (1|id)&quot;</span>, <span class="dt">data =</span> VerbAgg)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">print</span>(mod1)</span></code></pre></div>
+<p>By default, the <code>eirm</code> function returns the <strong>easiness</strong> parameters because the function uses a regression model parameterization where positive parameters indicate positive association with the dependent variable. In order to print the difficulty parameters (instead of easiness), <code>print(mod1, difficulty = TRUE)</code> must be used:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">print</span>(mod1, <span class="dt">difficulty =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<p>The <code>mod1</code> object is essentially a <code>glmerMod</code>-class object from the <code>lme4</code> package (Bates, Maechler, Bolker, &amp; Walker (2015)). All <code>glmerMod</code> results for the estimated model can seen with <code>mod1$model</code>. For example, estimated random effects for persons (i.e., theta estimates) can be obtained using:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>theta &lt;-<span class="st"> </span><span class="kw">ranef</span>(mod1<span class="op">$</span>model)<span class="op">$</span>id</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">head</span>(theta)</span></code></pre></div>
+<hr />
+</div>
+<div id="example-2-eirm-for-dichotomous-responses" class="section level3">
+<h3>Example 2: EIRM for dichotomous responses</h3>
+<p>The following example shows how to use item-related and person-related explanatory variables to explain dichotomous responses in the verbal aggression data set.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod2a &lt;-<span class="st"> </span><span class="kw">eirm</span>(<span class="dt">formula =</span> <span class="st">&quot;r2 ~ -1 + situ + btype + mode + (1|id)&quot;</span>, <span class="dt">data =</span> VerbAgg)</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">print</span>(mod2a)</span></code></pre></div>
+<pre><code>## EIRM formula: &quot;r2 ~ -1 + situ + btype + mode + (1|id)&quot; 
+## 
+## Number of persons: 316 
+## 
+## Number of observations: 7584 
+## 
+## Number of predictors: 5 
+## 
+## Parameter Estimates:
+## 
+##              Easiness       S.E.   z-value       p-value
+## situother   1.7437027 0.10145090  17.18765  3.285796e-66
+## situself    0.7158127 0.09775376   7.32261  2.431943e-13
+## btypescold -1.0551642 0.06803581 -15.50895  3.017583e-54
+## btypeshout -2.0421978 0.07292877 -28.00263 1.509082e-172
+## modedo     -0.6715770 0.05621055 -11.94753  6.688613e-33
+## 
+## Note: The estimated parameters above represent &#39;easiness&#39;.
+## Use difficulty = TRUE to get difficulty parameters.</code></pre>
+<p>It is possible to visualize the parameters using an item-person map using <code>plot(mod2a)</code>, which returns the following plot. Note that this plot is a modified version of the <code>plotPImap</code> function from the <code>eRm</code> package).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">plot</span>(mod2a)</span></code></pre></div>
+<p>Aesthetic elements such as axis labels and plot title can be added to the plot. For example, the following code updates the x-axis label and the main plot title (see <code>?plot.eirm</code> for further details).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">plot</span>(mod2a, <span class="dt">difficulty =</span> <span class="ot">TRUE</span>, <span class="dt">main =</span> <span class="st">&quot;Verbal Aggression Example&quot;</span>, <span class="dt">latdim =</span> <span class="st">&quot;Verbal Aggression&quot;</span>)</span></code></pre></div>
+<p>This plot wpuld show the difficulty parameters (instead of easiness), change the main title above the plot, and change the x-axis – the name for the latent trait being measured.</p>
+<p>Also, it is possible to compare nested explanatory models with each other. The following example shows the estimation of a more compact version of <code>mod2a</code> with one less variable and compares the two models (i.e., <code>mod2a</code> vs. <code>mod2b</code>).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod2b &lt;-<span class="st"> </span><span class="kw">eirm</span>(<span class="dt">formula =</span> <span class="st">&quot;r2 ~ -1 + situ + btype + (1|id)&quot;</span>, <span class="dt">data =</span> VerbAgg)</span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">anova</span>(mod2a<span class="op">$</span>model, mod2b<span class="op">$</span>model)</span></code></pre></div>
+<hr />
+</div>
+<div id="example-3-eirm-for-polytomous-responses" class="section level3">
+<h3>Example 3: EIRM for polytomous responses</h3>
+<p>It is also possible to use the <code>eirm</code> function with polytomous item responses as well. Because the function only accepts dichotomous responses (i.e., binomial distribution), polytomous data must be reformatted first. To reformat the data, the <code>polyreformat</code> function can be used. The following example demonstrates how polytomous responses (no, perhaps, and yes) in the verbal aggression data set can be reformatted into a dichotomous form:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>VerbAgg2 &lt;-<span class="st"> </span><span class="kw">polyreformat</span>(<span class="dt">data=</span>VerbAgg, <span class="dt">id.var =</span> <span class="st">&quot;id&quot;</span>, <span class="dt">long.format =</span> <span class="ot">FALSE</span>, </span>
+<span id="cb11-2"><a href="#cb11-2"></a>                         <span class="dt">var.name =</span> <span class="st">&quot;item&quot;</span>, <span class="dt">val.name =</span> <span class="st">&quot;resp&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="kw">head</span>(VerbAgg2)</span></code></pre></div>
+<pre><code>##   Anger Gender        item    resp id btype  situ mode r2 polycategory
+## 1    20      M S1WantCurse      no  1 curse other want  N  cat_perhaps
+## 2    11      M S1WantCurse      no  2 curse other want  N  cat_perhaps
+## 3    17      F S1WantCurse perhaps  3 curse other want  Y  cat_perhaps
+## 4    21      F S1WantCurse perhaps  4 curse other want  Y  cat_perhaps
+## 5    17      F S1WantCurse perhaps  5 curse other want  Y  cat_perhaps
+## 6    21      F S1WantCurse     yes  6 curse other want  Y  cat_perhaps
+##   polyresponse                polyitem
+## 1            0 S1WantCurse.cat_perhaps
+## 2            0 S1WantCurse.cat_perhaps
+## 3            1 S1WantCurse.cat_perhaps
+## 4            1 S1WantCurse.cat_perhaps
+## 5            1 S1WantCurse.cat_perhaps
+## 6           NA S1WantCurse.cat_perhaps</code></pre>
+<p>In the reformatted data, <code>polyresponse</code> is the new dependent variable (i.e., pseudo-dichotomous version of the original response variable <code>resp</code>) and <code>polycategory</code> represents the response categories. Based on the reformatted data, each item has two rows (number of response categories - 1) based on the following rules (Stanke &amp; Bulut (2019)) for further details on this parameterization):</p>
+<ul>
+<li>If <code>polycategory</code> = “cat_perhaps” and <code>resp</code> = “no”, then <code>polyresponse</code> = 0</li>
+<li>If <code>polycategory</code> = “cat_perhaps” and <code>resp</code> = “perhaps”, then <code>polyresponse</code> = 1</li>
+<li>If <code>polycategory</code> = “cat_perhaps” and <code>resp</code> = “yes”, then <code>polyresponse</code> = NA</li>
+</ul>
+<p>and</p>
+<ul>
+<li>If <code>polycategory</code> = “cat_yes” and <code>resp</code> = “no”, then <code>polyresponse</code> = NA</li>
+<li>If <code>polycategory</code> = “cat_yes” and <code>resp</code> = “perhaps”, then <code>polyresponse</code> = 0</li>
+<li>If <code>polycategory</code> = “cat_yes” and <code>resp</code> = “yes”, then <code>polyresponse</code> = 1</li>
+</ul>
+<p><strong>NOTE:</strong> Although <code>polyreformat</code> is capable of reshaping wide-format data into long-format and reformat the long data for the analysis with <code>eirm</code>, a safer option is to transform the data from wide to long format before using <code>polyreformat</code>. The <code>melt</code> function from the <code>reshape2</code> package can easily transform wide data to long data.</p>
+<p>Several polytomous models can be estimated using the reformatted data:</p>
+<p><strong>Model 1:</strong> It explains only the first threshold (i.e., threshold from no to perhaps) based on explanatory variables:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod3 &lt;-<span class="st"> </span><span class="kw">eirm</span>(<span class="dt">formula =</span> <span class="st">&quot;polyresponse ~ -1 + situ + btype + mode + (1|id)&quot;</span>, </span>
+<span id="cb13-2"><a href="#cb13-2"></a>             <span class="dt">data =</span> VerbAgg2)</span></code></pre></div>
+<p><strong>Model 2:</strong> It explains the first threshold (i.e., threshold from no to perhaps) and second threshold (perhaps to yes) based on explanatory variables:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>mod4 &lt;-<span class="st"> </span><span class="kw">eirm</span>(<span class="dt">formula =</span> <span class="st">&quot;polyresponse ~ -1 + btype + situ + mode + </span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="st">             polycategory + polycategory:btype + (1|id)&quot;</span>, <span class="dt">data =</span> VerbAgg2)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
